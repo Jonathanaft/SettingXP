@@ -1,0 +1,270 @@
+<html>
+<head>
+<title>SettingXP</title>
+
+<HTA:APPLICATION
+ ID="SettingXP"
+ APPLICATIONNAME="SettingXP"
+ BORDER="thick"
+ CAPTION="yes"
+ SHOWINTASKBAR="yes"
+ SINGLEINSTANCE="yes"
+ SCROLL="no"
+/>
+
+<style>
+body {
+    font-family: Tahoma;
+    background: #ECE9D8;
+    margin: 10px;
+}
+
+h2 {
+    color: #1F3F82;
+}
+
+h3 {
+    color: #1F3F82;
+    margin-bottom: 4px;
+}
+
+.panel {
+    background: #FFFFFF;
+    border: 1px solid #7F9DB9;
+    padding: 8px;
+    margin-bottom: 10px;
+}
+
+button {
+    font-family: Tahoma;
+    font-size: 11px;
+    padding: 4px 12px;
+    margin: 2px;
+    color: #000000;
+    background: linear-gradient(#EAF3FF, #9DBEF5);
+    border: 1px solid #4A77C9;
+}
+
+button:hover {
+    background: linear-gradient(#D6E8FF, #7FAAF0);
+}
+
+button:active {
+    background: linear-gradient(#7FAAF0, #D6E8FF);
+}
+</style>
+
+<script language="VBScript">
+Dim fso, shell
+Set fso = CreateObject("Scripting.FileSystemObject")
+Set shell = CreateObject("WScript.Shell")
+
+' =====================
+' VOLUME CONTROL
+' =====================
+Sub VolUp()
+    shell.SendKeys Chr(&HAF)
+End Sub
+
+Sub VolDown()
+    shell.SendKeys Chr(&HAE)
+End Sub
+
+Sub VolMute()
+    shell.SendKeys Chr(&HAD)
+End Sub
+
+' =====================
+' FILE CREATOR / EDITOR
+' =====================
+Sub CreateFile()
+    Dim path, content, file
+    path = InputBox("Enter full file path:")
+    If path = "" Then Exit Sub
+
+    content = InputBox("Enter file content:")
+    Set file = fso.CreateTextFile(path, True)
+    file.Write content
+    file.Close
+    MsgBox "File created."
+End Sub
+
+Sub EditFile()
+    Dim path
+    path = InputBox("Enter file path:")
+    If fso.FileExists(path) Then
+        shell.Run "notepad.exe """ & path & """"
+    Else
+        MsgBox "File not found."
+    End If
+End Sub
+
+' =====================
+' CUSTOM PATH OPENER
+' =====================
+Sub OpenCustomPath()
+    Dim p
+    p = InputBox("Enter folder path:")
+    If p = "" Then Exit Sub
+    If fso.FolderExists(p) Then
+        shell.Run p
+    Else
+        MsgBox "Folder not found."
+    End If
+End Sub
+
+' =====================
+' CUSTOMIZABLE VBS MAKER
+' =====================
+Sub MakeVBScript()
+    Dim choice, text, program, code, path, file
+
+    choice = InputBox( _
+        "Choose template:" & vbCrLf & _
+        "1 = Message Box" & vbCrLf & _
+        "2 = Open Program" & vbCrLf & _
+        "3 = Loop Message")
+
+    Select Case choice
+        Case "1"
+            text = InputBox("Enter message text:")
+            If text = "" Then Exit Sub
+            code = "MsgBox """ & text & """"
+
+        Case "2"
+            program = InputBox("Enter program path:")
+            If program = "" Then Exit Sub
+            code = "CreateObject(""WScript.Shell"").Run """ & program & """"
+
+        Case "3"
+            text = InputBox("Enter loop message:")
+            If text = "" Then Exit Sub
+            code = "Do" & vbCrLf & _
+                   "MsgBox """ & text & """" & vbCrLf & _
+                   "Loop"
+
+        Case Else
+            Exit Sub
+    End Select
+
+    path = InputBox("Save script as (.vbs):")
+    If path = "" Then Exit Sub
+
+    Set file = fso.CreateTextFile(path, True)
+    file.Write code
+    file.Close
+
+    MsgBox "VBScript created."
+End Sub
+
+' =====================
+' SCRIPT RUNNER
+' =====================
+Sub RunScript()
+    Dim path
+    path = InputBox("Enter .vbs path:")
+    If path = "" Then Exit Sub
+
+    If fso.FileExists(path) Then
+        shell.Run """" & path & """"
+    Else
+        MsgBox "Script not found."
+    End If
+End Sub
+
+' =====================
+' GUESS NUMBER GAME
+' =====================
+Sub GuessGame()
+    Randomize
+    Dim num, guess
+    num = Int(Rnd * 20) + 1
+
+    Do
+        guess = InputBox("Guess a number between 1 and 20:")
+        If guess = "" Then Exit Sub
+        If Not IsNumeric(guess) Then
+            MsgBox "Enter a number."
+        ElseIf CInt(guess) = num Then
+            MsgBox "Correct."
+            Exit Do
+        Else
+            MsgBox "Incorrect."
+        End If
+    Loop
+End Sub
+
+' =====================
+' ROCK PAPER SCISSORS
+' =====================
+Sub RockPaperScissors()
+    Randomize
+    Dim user, cpu, result
+    user = LCase(InputBox("Choose: rock, paper, or scissors"))
+    If user = "" Then Exit Sub
+
+    If user <> "rock" And user <> "paper" And user <> "scissors" Then
+        MsgBox "Invalid choice."
+        Exit Sub
+    End If
+
+    cpu = Int(Rnd * 3)
+    Select Case cpu
+        Case 0: cpu = "rock"
+        Case 1: cpu = "paper"
+        Case 2: cpu = "scissors"
+    End Select
+
+    If user = cpu Then
+        result = "Draw."
+    ElseIf (user = "rock" And cpu = "scissors") Or _
+           (user = "paper" And cpu = "rock") Or _
+           (user = "scissors" And cpu = "paper") Then
+        result = "You win."
+    Else
+        result = "You lose."
+    End If
+
+    MsgBox "You chose: " & user & vbCrLf & _
+           "Computer chose: " & cpu & vbCrLf & _
+           result
+End Sub
+</script>
+</head>
+
+<body>
+
+<h2>SettingXP</h2>
+
+<div class="panel">
+<h3>Volume Control</h3>
+<button onclick="VolUp()">Volume Up</button>
+<button onclick="VolDown()">Volume Down</button>
+<button onclick="VolMute()">Mute</button>
+</div>
+
+<div class="panel">
+<h3>Files</h3>
+<button onclick="CreateFile()">Create File</button>
+<button onclick="EditFile()">Edit File</button>
+</div>
+
+<div class="panel">
+<h3>Paths</h3>
+<button onclick="OpenCustomPath()">Open Custom Path</button>
+</div>
+
+<div class="panel">
+<h3>VBScript Tools</h3>
+<button onclick="MakeVBScript()">Create Script</button>
+<button onclick="RunScript()">Run Script</button>
+</div>
+
+<div class="panel">
+<h3>Games</h3>
+<button onclick="GuessGame()">Guess Number</button>
+<button onclick="RockPaperScissors()">Rock Paper Scissors</button>
+</div>
+
+</body>
+</html>
